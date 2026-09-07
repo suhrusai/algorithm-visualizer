@@ -28,7 +28,8 @@ export function RouteMeta() {
 
   useEffect(() => {
     const { title, description } = metaForPath(pathname)
-    const url = SITE_URL + (pathname === '/' ? '/' : pathname)
+    // Match the trailing-slash form of the prerendered / sitemap URLs.
+    const url = SITE_URL + (pathname === '/' ? '/' : pathname.replace(/\/?$/, '/'))
 
     document.title = title
     setMeta('meta[name="description"]', 'name', 'description', description)

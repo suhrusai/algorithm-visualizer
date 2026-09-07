@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { ChevronDown, Menu, Moon, Sun, X } from 'lucide-react'
+import { ChevronDown, Menu, Moon, Sun, Swords, X } from 'lucide-react'
 import { categories } from '@/data/categories'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/hooks/useTheme'
@@ -75,6 +75,19 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
       {categories.map((category) => (
         <CategoryGroup key={category.id} category={category} onNavigate={onNavigate} />
       ))}
+      <NavLink
+        to="/race"
+        onClick={onNavigate}
+        className={({ isActive }) =>
+          cn(
+            'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent',
+            isActive && 'bg-accent',
+          )
+        }
+      >
+        <Swords className="size-4" />
+        Algorithm Race
+      </NavLink>
     </nav>
   )
 }

@@ -2,6 +2,7 @@ import { sortingAlgorithms } from '@/algorithms/sorting'
 import { searchingAlgorithms } from '@/algorithms/searching'
 import { graphAlgorithms } from '@/algorithms/graph'
 import { treeAlgorithms } from '@/algorithms/tree'
+import { pathfindingAlgorithms } from '@/algorithms/pathfinding'
 
 export interface AlgorithmCategory {
   id: string
@@ -59,6 +60,18 @@ export const categories: AlgorithmCategory[] = [
       id: a.id,
       name: a.name,
       path: `/trees/${a.id}`,
+    })),
+  },
+  {
+    id: 'pathfinding',
+    name: 'Pathfinding',
+    description: 'Grid search: BFS, Dijkstra, A*, and Greedy Best-First over walls and weighted tiles.',
+    path: '/pathfinding',
+    available: true,
+    algorithms: pathfindingAlgorithms.map((a) => ({
+      id: a.id,
+      name: a.name,
+      path: `/pathfinding/${a.id}`,
     })),
   },
 ]

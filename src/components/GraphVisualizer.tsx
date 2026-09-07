@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { PlaybackControls } from '@/components/PlaybackControls'
 import { PseudocodePanel } from '@/components/PseudocodePanel'
+import { ShareButton } from '@/components/ShareButton'
 import { GraphCanvas } from '@/components/GraphCanvas'
 import { useStepPlayer } from '@/hooks/useStepPlayer'
+import { useUrlState } from '@/hooks/useUrlState'
 import { sampleGraph } from '@/algorithms/graph'
 import type { GraphAlgorithm } from '@/types/graph'
 
@@ -14,16 +16,22 @@ interface GraphVisualizerProps {
 const NODE_IDS = sampleGraph.nodes.map((n) => n.id)
 
 export function GraphVisualizer({ algorithm }: GraphVisualizerProps) {
-  const [start, setStart] = useState('A')
-  const [goal, setGoal] = useState('I')
+  const [{ start, goal, speed }, setUrl] = useUrlState({ start: 'A', goal: 'I', speed: 1 })
+  const setStart = (v: string) => setUrl({ start: v })
+  const setGoal = (v: string) => setUrl({ goal: v })
 
   const steps = useMemo(() => algorithm.run(sampleGraph, start, goal), [algorithm, start, goal])
-  const player = useStepPlayer(steps.length)
+  const player = useStepPlayer(steps.length, speed)
 
   useEffect(() => {
     player.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algorithm.id, start, goal])
+
+  useEffect(() => {
+    if (player.speed !== speed) setUrl({ speed: player.speed })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player.speed])
 
   const currentStep = steps[player.index] ?? steps[0]
   const distances = currentStep.distances
@@ -36,6 +44,9 @@ export function GraphVisualizer({ algorithm }: GraphVisualizerProps) {
           <Badge variant={algorithm.weighted ? 'default' : 'secondary'}>
             {algorithm.weighted ? 'Uses edge weights' : 'Ignores edge weights'}
           </Badge>
+          <div className="ml-auto">
+            <ShareButton />
+          </div>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">{algorithm.description}</p>
         <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">

@@ -9,8 +9,9 @@ export function Home() {
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Algorithm Visualizer</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Watch classic algorithms run step by step, side by side with their pseudocode. Pick a
-          category below to get started — sorting, searching, graph, and tree algorithms are all
+          Watch classic algorithms run step by step, side by side with their pseudocode. Sorting,
+          searching, graph, tree, and grid-pathfinding visualizations — plus a{' '}
+          <Link className="text-primary hover:underline" to="/race">race mode</Link> — are all
           ready to explore.
         </p>
       </div>

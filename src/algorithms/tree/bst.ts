@@ -10,15 +10,23 @@ export interface BstNode {
 export interface Bst {
   root: BstNode | null
   size: number
+  /** monotonic id source — never reused, so deletes don't cause id collisions */
+  nextId: number
 }
 
 export function emptyBst(): Bst {
-  return { root: null, size: 0 }
+  return { root: null, size: 0, nextId: 0 }
+}
+
+export function cloneBst(tree: Bst): Bst {
+  const cloneNode = (n: BstNode | null): BstNode | null =>
+    n === null ? null : { id: n.id, value: n.value, left: cloneNode(n.left), right: cloneNode(n.right) }
+  return { root: cloneNode(tree.root), size: tree.size, nextId: tree.nextId }
 }
 
 /** Insert a value, returning the new node's id (or the existing id on a duplicate). */
 export function bstInsert(tree: Bst, value: number): number {
-  const node: BstNode = { id: tree.size, value, left: null, right: null }
+  const node: BstNode = { id: tree.nextId++, value, left: null, right: null }
   if (tree.root === null) {
     tree.root = node
     tree.size += 1
@@ -87,6 +95,51 @@ export function layoutBst(tree: Bst): TreeSnapshot {
 function countNodes(node: BstNode | null): number {
   if (node === null) return 0
   return 1 + countNodes(node.left) + countNodes(node.right)
+}
+
+export function inorderValues(tree: Bst): number[] {
+  const out: number[] = []
+  const walk = (n: BstNode | null) => {
+    if (!n) return
+    walk(n.left)
+    out.push(n.value)
+    walk(n.right)
+  }
+  walk(tree.root)
+  return out
+}
+
+/** Node values in breadth-first order — re-inserting them reproduces the shape. */
+export function levelOrderValues(tree: Bst): number[] {
+  const out: number[] = []
+  const queue: BstNode[] = tree.root ? [tree.root] : []
+  while (queue.length) {
+    const n = queue.shift() as BstNode
+    out.push(n.value)
+    if (n.left) queue.push(n.left)
+    if (n.right) queue.push(n.right)
+  }
+  return out
+}
+
+export function height(node: BstNode | null): number {
+  if (node === null) return 0
+  return 1 + Math.max(height(node.left), height(node.right))
+}
+
+/** Build a height-balanced BST from a sorted value list, reusing ids where possible. */
+export function balancedFrom(values: number[], startId = 0): Bst {
+  let id = startId
+  const build = (lo: number, hi: number): BstNode | null => {
+    if (lo > hi) return null
+    const mid = (lo + hi) >> 1
+    const node: BstNode = { id: id++, value: values[mid], left: null, right: null }
+    node.left = build(lo, mid - 1)
+    node.right = build(mid + 1, hi)
+    return node
+  }
+  const root = build(0, values.length - 1)
+  return { root, size: values.length, nextId: id }
 }
 
 /** A spread of distinct values that produces a reasonably balanced tree. */

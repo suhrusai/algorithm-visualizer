@@ -9,15 +9,19 @@ Built with React, TypeScript, Vite, Tailwind CSS, and shadcn/ui.
 
 ## What's here
 
-- **Sorting algorithms**: Bubble, Selection, Insertion, Merge, Quick, and Heap
-  sort. Each has:
-  - A bar-chart visualization with play/pause, step forward/back, seek,
-    speed control, adjustable array size, and reshuffle.
-  - Pseudocode with the active line highlighted as the algorithm runs.
-  - Time/space complexity and stability info.
+- **Sorting**: Bubble, Selection, Insertion, Merge, Quick, and Heap sort. Bars
+  physically slide between positions as elements move.
+- **Searching**: Linear, Binary, Jump, and Interpolation search, showing the
+  active window and eliminated elements as the search narrows in.
+- **Graph**: Breadth-first search, depth-first search, and Dijkstra's algorithm
+  on a small weighted graph, with the frontier, visited set, and running
+  distances shown at each step.
+- **Trees**: Binary search tree insertion and lookup, plus in-order, pre-order,
+  post-order, and level-order traversals.
 
-More categories (searching, graphs, trees) are stubbed out in the sidebar for
-future work.
+Every visualization has play/pause, step forward/back, seek, and speed
+controls, and pseudocode with the active line highlighted as the algorithm
+runs.
 
 ## Development
 

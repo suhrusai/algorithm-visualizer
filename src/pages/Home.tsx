@@ -10,8 +10,8 @@ export function Home() {
         <h1 className="text-3xl font-semibold tracking-tight">Algorithm Visualizer</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
           Watch classic algorithms run step by step, side by side with their pseudocode. Pick a
-          category below to get started — sorting algorithms are ready now, with more categories
-          on the way.
+          category below to get started — sorting, searching, graph, and tree algorithms are all
+          ready to explore.
         </p>
       </div>
 

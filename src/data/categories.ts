@@ -1,4 +1,7 @@
 import { sortingAlgorithms } from '@/algorithms/sorting'
+import { searchingAlgorithms } from '@/algorithms/searching'
+import { graphAlgorithms } from '@/algorithms/graph'
+import { treeAlgorithms } from '@/algorithms/tree'
 
 export interface AlgorithmCategory {
   id: string
@@ -27,23 +30,35 @@ export const categories: AlgorithmCategory[] = [
     name: 'Searching',
     description: 'Algorithms that locate a target value within a data structure.',
     path: '/searching',
-    available: false,
-    algorithms: [],
+    available: true,
+    algorithms: searchingAlgorithms.map((a) => ({
+      id: a.id,
+      name: a.name,
+      path: `/searching/${a.id}`,
+    })),
   },
   {
     id: 'graph',
     name: 'Graph',
     description: 'Traversal and shortest-path algorithms on graphs.',
     path: '/graph',
-    available: false,
-    algorithms: [],
+    available: true,
+    algorithms: graphAlgorithms.map((a) => ({
+      id: a.id,
+      name: a.name,
+      path: `/graph/${a.id}`,
+    })),
   },
   {
     id: 'trees',
     name: 'Trees',
-    description: 'Binary search trees, balancing, and traversal algorithms.',
+    description: 'Binary search tree insertion, lookup, and traversal.',
     path: '/trees',
-    available: false,
-    algorithms: [],
+    available: true,
+    algorithms: treeAlgorithms.map((a) => ({
+      id: a.id,
+      name: a.name,
+      path: `/trees/${a.id}`,
+    })),
   },
 ]

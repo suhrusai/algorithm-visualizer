@@ -25,7 +25,7 @@ export function Layout() {
             <span className="h-3.5 w-1 rounded-sm bg-violet-500" />
             <span className="h-2.5 w-1 rounded-sm bg-pink-500" />
           </span>
-          Algo Visualizer
+          Algorithm Visualizer
         </Link>
         <button
           onClick={toggle}

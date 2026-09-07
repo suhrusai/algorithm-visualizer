@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { PlaybackControls } from '@/components/PlaybackControls'
 import { ShareButton } from '@/components/ShareButton'
 import { GridCanvas, type PaintAction } from '@/components/GridCanvas'
+import { MultiGridCanvas, type RaceLane } from '@/components/MultiGridCanvas'
 import { useStepPlayer } from '@/hooks/useStepPlayer'
 import { useUrlState } from '@/hooks/useUrlState'
 import { randomSeed } from '@/lib/rng'
@@ -24,6 +25,13 @@ const COLS = DEFAULT_COLS
 const CELLS = ROWS * COLS
 const DEFAULT = defaultGrid()
 const DEFAULT_PICKS = ['bfs', 'dijkstra', 'astar', 'greedy']
+
+const LANE_COLORS: Record<string, RaceLane['colors'] & { swatch: string }> = {
+  bfs: { visited: 'rgba(56,189,248,0.35)', frontier: 'rgba(56,189,248,0.7)', path: '#0284c7', swatch: 'bg-sky-500' },
+  dijkstra: { visited: 'rgba(167,139,250,0.35)', frontier: 'rgba(167,139,250,0.75)', path: '#7c3aed', swatch: 'bg-violet-500' },
+  astar: { visited: 'rgba(251,146,60,0.35)', frontier: 'rgba(251,146,60,0.8)', path: '#ea580c', swatch: 'bg-orange-500' },
+  greedy: { visited: 'rgba(244,114,182,0.35)', frontier: 'rgba(244,114,182,0.8)', path: '#db2777', swatch: 'bg-pink-500' },
+}
 
 interface Lane {
   id: string
@@ -119,6 +127,14 @@ export function PathRace() {
     setUrl({ picks: next.join(',') })
   }
 
+  const editing = player.index === 0 && !player.playing
+  const raceLanes: RaceLane[] = lanes.map((lane) => ({
+    id: lane.id,
+    name: lane.name,
+    colors: LANE_COLORS[lane.id] ?? LANE_COLORS.bfs,
+    step: lane.steps[Math.min(player.index, lane.steps.length - 1)],
+  }))
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -129,8 +145,9 @@ export function PathRace() {
           </div>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Run BFS, Dijkstra, A*, and Greedy Best-First on the same grid at once. Edit the maze
-          above and every lane re-runs. Ranked by shortest path found, then by fewest cells
+          Run BFS, Dijkstra, A*, and Greedy Best-First on the same grid at once — each racer's
+          explored cells and path are drawn in its own colour. Step off zero to start the race;
+          reset to zero to edit the maze. Ranked by shortest path found, then by fewest cells
           explored.
         </p>
       </div>
@@ -178,13 +195,17 @@ export function PathRace() {
         </Button>
       </div>
 
-      <GridCanvas
-        grid={grid}
-        step={{ visited: [], frontier: [], line: 0, message: '' }}
-        editable={!player.playing}
-        brush={brush}
-        onPaint={handlePaint}
-      />
+      {editing ? (
+        <GridCanvas
+          grid={grid}
+          step={{ visited: [], frontier: [], line: 0, message: '' }}
+          editable
+          brush={brush}
+          onPaint={handlePaint}
+        />
+      ) : (
+        <MultiGridCanvas grid={grid} lanes={raceLanes} />
+      )}
 
       <PlaybackControls
         playing={player.playing}
@@ -199,38 +220,31 @@ export function PathRace() {
         onSpeedChange={player.setSpeed}
       />
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {lanes.map((lane) => {
-          const step = lane.steps[Math.min(player.index, lane.steps.length - 1)]
+          const c = LANE_COLORS[lane.id] ?? LANE_COLORS.bfs
+          const stepped = lane.steps[Math.min(player.index, lane.steps.length - 1)]
           const done = player.index >= lane.steps.length - 1
           const rank = rankOf(lane.id)
           return (
-            <div key={lane.id} className="flex flex-col gap-2 rounded-lg border bg-card p-3">
-              <div className="flex items-center gap-2 text-sm">
+            <div key={lane.id} className="flex flex-col gap-1 rounded-lg border bg-card p-3 text-sm">
+              <div className="flex items-center gap-1.5">
+                <span className={cn('size-3 rounded-sm', c.swatch)} />
                 <span className="font-medium">{lane.name}</span>
                 {done && (
                   <span
                     className={cn(
-                      'flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold',
-                      rank === 1
-                        ? 'bg-amber-400/20 text-amber-600 dark:text-amber-400'
-                        : 'bg-muted text-muted-foreground',
+                      'ml-auto flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold',
+                      rank === 1 ? 'bg-amber-400/20 text-amber-600 dark:text-amber-400' : 'bg-muted text-muted-foreground',
                     )}
                   >
                     {rank === 1 && <Trophy className="size-3" />}#{rank}
                   </span>
                 )}
-                <span className="ml-auto text-xs tabular-nums text-muted-foreground">
-                  {lane.expanded} expanded · path {lane.reached ? lane.pathLen : '—'}
-                </span>
               </div>
-              <GridCanvas
-                grid={grid}
-                step={step}
-                editable={false}
-                brush={brush}
-                onPaint={() => {}}
-              />
+              <span className="text-xs tabular-nums text-muted-foreground">
+                {stepped.visited.length} explored · path {lane.reached ? lane.pathLen : '—'}
+              </span>
             </div>
           )
         })}

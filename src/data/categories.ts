@@ -3,6 +3,7 @@ import { searchingAlgorithms } from '@/algorithms/searching'
 import { graphAlgorithms } from '@/algorithms/graph'
 import { treeAlgorithms } from '@/algorithms/tree'
 import { pathfindingAlgorithms } from '@/algorithms/pathfinding'
+import { dpAlgorithms } from '@/algorithms/dp'
 
 export interface AlgorithmCategory {
   id: string
@@ -79,5 +80,17 @@ export const categories: AlgorithmCategory[] = [
       })),
       { id: 'race', name: 'Race Mode', path: '/pathfinding/race' },
     ],
+  },
+  {
+    id: 'dp',
+    name: 'Dynamic Programming',
+    description: 'Table-filling classics: LCS, edit distance, knapsack, coin change, and LIS.',
+    path: '/dp',
+    available: true,
+    algorithms: dpAlgorithms.map((a) => ({
+      id: a.id,
+      name: a.name,
+      path: `/dp/${a.id}`,
+    })),
   },
 ]

@@ -3,6 +3,7 @@ import { searchingAlgorithms } from '@/algorithms/searching'
 import { graphAlgorithms } from '@/algorithms/graph'
 import { treeAlgorithms } from '@/algorithms/tree'
 import { pathfindingAlgorithms } from '@/algorithms/pathfinding'
+import { dpAlgorithms } from '@/algorithms/dp'
 
 export const SITE_NAME = 'Algorithm Visualizer'
 export const SITE_URL = 'https://suhrusai.github.io/algorithm-visualizer'
@@ -56,6 +57,11 @@ const STATIC: Record<string, Meta> = {
     description:
       'Run BFS, Dijkstra, A*, and Greedy Best-First on the same maze at once and compare paths and cells explored.',
   },
+  '/dp': {
+    title: `Dynamic programming visualizations — ${SITE_NAME}`,
+    description:
+      'Watch DP tables fill in cell by cell: longest common subsequence, edit distance, 0/1 knapsack, coin change, and longest increasing subsequence.',
+  },
 }
 
 const DYNAMIC: { prefix: string; label: string; items: { id: string; name: string; description: string }[] }[] = [
@@ -64,6 +70,7 @@ const DYNAMIC: { prefix: string; label: string; items: { id: string; name: strin
   { prefix: '/graph/', label: 'graph', items: graphAlgorithms },
   { prefix: '/trees/', label: 'tree', items: treeAlgorithms },
   { prefix: '/pathfinding/', label: 'pathfinding', items: pathfindingAlgorithms },
+  { prefix: '/dp/', label: 'dynamic programming', items: dpAlgorithms },
 ]
 
 export function metaForPath(pathname: string): Meta {

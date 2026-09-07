@@ -18,6 +18,12 @@ jobs:
   build:
     # Runs on the self-hosted SAI-ZENBOOK runner (Windows ARM64).
     runs-on: [self-hosted, Windows]
+    # Use bash for `run:` steps so the runner doesn't invoke a .ps1 wrapper,
+    # which the machine's PowerShell execution policy blocks. bash.exe ships
+    # with Git for Windows, which the runner already needs for checkout.
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4

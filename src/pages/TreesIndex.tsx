@@ -15,6 +15,28 @@ export function TreesIndex() {
         </p>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            BST Operations
+            <Badge variant="outline" className="text-xs">interactive</Badge>
+          </CardTitle>
+          <CardDescription>
+            A live binary search tree you drive yourself: insert, delete (all three cases), search,
+            and rebalance, from your own values.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            to="/trees/operations"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            Open the playground
+            <ArrowRight className="size-4" />
+          </Link>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 sm:grid-cols-2">
         {treeAlgorithms.map((algo) => (
           <Card key={algo.id}>

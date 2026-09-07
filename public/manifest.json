@@ -1,0 +1,19 @@
+{
+  "name": "Algorithm Visualizer",
+  "short_name": "AlgoViz",
+  "description": "Interactive visualizations of classic algorithms: sorting, searching, graph traversal, shortest paths, binary search trees, and grid pathfinding.",
+  "start_url": "/algorithm-visualizer/",
+  "scope": "/algorithm-visualizer/",
+  "display": "standalone",
+  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  "orientation": "portrait-or-landscape",
+  "icons": [
+    {
+      "src": "/algorithm-visualizer/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

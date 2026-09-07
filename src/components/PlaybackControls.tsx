@@ -8,7 +8,8 @@ interface PlaybackControlsProps {
   onStepBack: () => void
   onStepForward: () => void
   onReset: () => void
-  onShuffle: () => void
+  onShuffle?: () => void
+  shuffleTitle?: string
   index: number
   stepCount: number
   onSeek: (value: number) => void
@@ -24,6 +25,7 @@ export function PlaybackControls({
   onStepForward,
   onReset,
   onShuffle,
+  shuffleTitle = 'New random array',
   index,
   stepCount,
   onSeek,
@@ -52,10 +54,14 @@ export function PlaybackControls({
         <Button variant="outline" size="icon" onClick={() => onSeek(stepCount - 1)} disabled={disabled || isLast} title="Skip to end">
           <SkipForward className="size-4" />
         </Button>
-        <div className="mx-1 h-6 w-px bg-border" />
-        <Button variant="outline" size="icon" onClick={onShuffle} disabled={disabled} title="New random array">
-          <Shuffle className="size-4" />
-        </Button>
+        {onShuffle && (
+          <>
+            <div className="mx-1 h-6 w-px bg-border" />
+            <Button variant="outline" size="icon" onClick={onShuffle} disabled={disabled} title={shuffleTitle}>
+              <Shuffle className="size-4" />
+            </Button>
+          </>
+        )}
 
         <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
           <span className="tabular-nums">

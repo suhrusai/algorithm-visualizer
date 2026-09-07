@@ -71,10 +71,13 @@ export const categories: AlgorithmCategory[] = [
     description: 'Grid search: BFS, Dijkstra, A*, and Greedy Best-First over walls and weighted tiles.',
     path: '/pathfinding',
     available: true,
-    algorithms: pathfindingAlgorithms.map((a) => ({
-      id: a.id,
-      name: a.name,
-      path: `/pathfinding/${a.id}`,
-    })),
+    algorithms: [
+      ...pathfindingAlgorithms.map((a) => ({
+        id: a.id,
+        name: a.name,
+        path: `/pathfinding/${a.id}`,
+      })),
+      { id: 'race', name: 'Race Mode', path: '/pathfinding/race' },
+    ],
   },
 ]

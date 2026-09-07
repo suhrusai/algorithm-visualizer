@@ -51,6 +51,11 @@ const STATIC: Record<string, Meta> = {
     title: `Sorting algorithm race — ${SITE_NAME}`,
     description: 'Run several sorting algorithms side by side on the same array and see which finishes first.',
   },
+  '/pathfinding/race': {
+    title: `Pathfinding race: A* vs Dijkstra vs BFS vs Greedy — ${SITE_NAME}`,
+    description:
+      'Run BFS, Dijkstra, A*, and Greedy Best-First on the same maze at once and compare paths and cells explored.',
+  },
 }
 
 const DYNAMIC: { prefix: string; label: string; items: { id: string; name: string; description: string }[] }[] = [

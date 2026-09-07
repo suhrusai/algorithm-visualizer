@@ -16,14 +16,16 @@ concurrency:
 
 jobs:
   build:
-    # Runs on the self-hosted SAI-ZENBOOK runner (Windows ARM64).
+    # Build on the self-hosted SAI-ZENBOOK runner (Windows ARM64).
+    #
+    # One-time runner setup (out of the box the machine has neither, so both
+    # `run:` steps and the bundled tar in the Pages actions fail):
+    #   1. Allow local scripts:  Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+    #   2. Install Git for Windows (adds bash + tar to PATH):  winget install Git.Git
     runs-on: [self-hosted, Windows]
-    # Use bash for `run:` steps so the runner doesn't invoke a .ps1 wrapper,
-    # which the machine's PowerShell execution policy blocks. bash.exe ships
-    # with Git for Windows, which the runner already needs for checkout.
     defaults:
       run:
-        shell: bash
+        shell: pwsh
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,29 +36,44 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
       - name: Install dependencies
         run: npm ci
 
       - name: Build
         run: npm run build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # Plain artifact upload — pure Node, needs no bash/tar on the runner.
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
         with:
+          name: site
           path: dist
 
   deploy:
     needs: build
+    # Deploy from a GitHub-hosted runner: the Pages packaging/deploy actions
+    # need bash + tar, which the self-hosted box may not have.
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Download build output
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: dist
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Package for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -1,5 +1,5 @@
 import type { TreeStep } from '@/types/tree'
-import { balancedFrom, cloneBst, height, inorderValues, layoutBst, type Bst, type BstNode } from './bst'
+import { cloneBst, height, inorderValues, layoutBst, type Bst, type BstNode } from './bst'
 
 export type BstOpKind = 'insert' | 'delete' | 'search' | 'balance'
 
@@ -56,6 +56,18 @@ export const opPseudocode: Record<BstOpKind, string[]> = {
 
 function step(tree: Bst, extra: Partial<TreeStep> & { line: number; message: string }): TreeStep {
   return { snapshot: layoutBst(tree), ...extra }
+}
+
+/** Root-to-node id path, navigating by BST order (values are distinct). */
+function pathToValue(root: BstNode | null, value: number): number[] {
+  const out: number[] = []
+  let n = root
+  while (n) {
+    out.push(n.id)
+    if (n.value === value) break
+    n = value < n.value ? n.left : n.right
+  }
+  return out
 }
 
 export function insertOp(base: Bst, value: number): BstOpResult {
@@ -167,19 +179,25 @@ export function deleteOp(base: Bst, value: number): BstOpResult {
   }
 
   // Two children: replace with in-order successor (leftmost of right subtree).
+  steps.push(step(tree, { current: node.id, path: [...path], line: 4, message: `${value} has two children — find its in-order successor.` }))
   let succParent = node
   let succ = node.right
+  const succPath = [...path, succ.id]
+  steps.push(step(tree, { current: succ.id, path: [...succPath], line: 5, message: `Step right into the right subtree (${succ.value})…` }))
   while (succ.left !== null) {
     succParent = succ
     succ = succ.left
+    succPath.push(succ.id)
+    steps.push(step(tree, { current: succ.id, path: [...succPath], line: 5, message: `…then keep going left (${succ.value}).` }))
   }
-  steps.push(step(tree, { current: succ.id, line: 5, message: `Two children — in-order successor is ${succ.value} (leftmost of the right subtree).` }))
+  steps.push(step(tree, { current: succ.id, path: [...succPath], line: 5, message: `Successor is ${succ.value} — the smallest value in the right subtree.` }))
+  const removedValue = node.value
   node.value = succ.value
-  steps.push(step(tree, { current: node.id, path: [...path], line: 6, message: `Copy ${succ.value} up into the node being deleted.` }))
+  steps.push(step(tree, { current: node.id, path: [...path], line: 6, message: `Overwrite ${removedValue} with ${succ.value}.` }))
   if (succParent.left === succ) succParent.left = succ.right
   else succParent.right = succ.right
   tree.size -= 1
-  steps.push(step(tree, { current: node.id, path: [...path], line: 7, message: `Remove the old successor node.` }))
+  steps.push(step(tree, { current: node.id, path: [...path], line: 7, message: `Delete the leftover successor node. ${value} is gone.` }))
 
   return { steps, tree, summary: `Deleted ${value}` }
 }
@@ -187,12 +205,58 @@ export function deleteOp(base: Bst, value: number): BstOpResult {
 export function balanceOp(base: Bst): BstOpResult {
   const values = inorderValues(base)
   const steps: TreeStep[] = []
-  steps.push(step(base, { line: 1, message: `In-order values (already sorted): [ ${values.join(', ')} ].` }))
+  const oldHeight = height(base.root)
 
-  const balanced = balancedFrom(values, base.nextId)
-  steps.push(step(balanced, {
-    line: 3,
-    message: `Rebuild by always making the middle value the subtree root. New height ${height(balanced.root)} (was ${height(base.root)}).`,
-  }))
-  return { steps, tree: balanced, summary: 'Rebalanced' }
+  steps.push(
+    step(base, {
+      line: 2,
+      message: `Read the tree in order — that lists the values already sorted: [ ${values.join(', ')} ].`,
+    }),
+  )
+
+  const tree: Bst = { root: null, size: 0, nextId: base.nextId }
+  const placed: number[] = []
+
+  const build = (lo: number, hi: number, attach: (n: BstNode | null) => void) => {
+    if (lo > hi) {
+      attach(null)
+      return
+    }
+    const mid = (lo + hi) >> 1
+    const node: BstNode = { id: tree.nextId++, value: values[mid], left: null, right: null }
+    tree.size += 1
+    attach(node)
+    placed.push(node.id)
+    steps.push(
+      step(tree, {
+        current: node.id,
+        path: pathToValue(tree.root, node.value),
+        visited: [...placed],
+        line: 6,
+        message: `Middle of [${values[lo]} … ${values[hi]}] is ${node.value} — make it the subtree root.`,
+      }),
+    )
+    build(lo, mid - 1, (n) => {
+      node.left = n
+    })
+    build(mid + 1, hi, (n) => {
+      node.right = n
+    })
+  }
+
+  build(0, values.length - 1, (n) => {
+    tree.root = n
+  })
+
+  const newHeight = height(tree.root)
+  steps.push(
+    step(tree, {
+      visited: [...placed],
+      line: 0,
+      message: `Rebuilt. Height is now ${newHeight}${
+        newHeight < oldHeight ? ` (down from ${oldHeight})` : ` (was ${oldHeight})`
+      }.`,
+    }),
+  )
+  return { steps, tree, summary: `Rebalanced · height ${oldHeight} → ${newHeight}` }
 }

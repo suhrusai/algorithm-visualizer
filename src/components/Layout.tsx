@@ -36,7 +36,7 @@ export function Layout() {
           {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
         </button>
         <a
-          href="https://github.com/suhrusai/algo-vizualizer"
+          href="https://github.com/suhrusai/algorithm-visualizer"
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-1.5 rounded-md p-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"

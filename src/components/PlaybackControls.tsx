@@ -87,7 +87,7 @@ export function PlaybackControls({
         <Slider
           value={[speed]}
           min={0.25}
-          max={4}
+          max={100}
           step={0.25}
           onValueChange={([v]) => onSpeedChange(v)}
         />

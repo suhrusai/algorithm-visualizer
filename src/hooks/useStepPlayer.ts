@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export function useStepPlayer(stepCount: number) {
+export function useStepPlayer(stepCount: number, initialSpeed = 1) {
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
-  const [speed, setSpeed] = useState(1)
+  const [speed, setSpeed] = useState(initialSpeed)
   const timeoutRef = useRef<number | null>(null)
 
   const clampedStepCount = Math.max(stepCount, 1)
@@ -21,10 +21,13 @@ export function useStepPlayer(stepCount: number) {
       setPlaying(false)
       return
     }
+    // Below ~25x, one step per tick with a shrinking delay. Above that the
+    // delay floors out, so advance several steps per tick instead.
     const baseDelay = 500
-    const delay = Math.max(20, baseDelay / speed)
+    const stepsPerTick = speed <= 25 ? 1 : Math.ceil(speed / 25)
+    const delay = Math.max(16, (baseDelay / speed) * stepsPerTick)
     timeoutRef.current = window.setTimeout(() => {
-      setIndex((i) => Math.min(i + 1, clampedStepCount - 1))
+      setIndex((i) => Math.min(i + stepsPerTick, clampedStepCount - 1))
     }, delay)
     return clear
   }, [playing, index, speed, clampedStepCount, clear])

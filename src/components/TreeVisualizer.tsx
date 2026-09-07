@@ -1,37 +1,41 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { PlaybackControls } from '@/components/PlaybackControls'
 import { PseudocodePanel } from '@/components/PseudocodePanel'
+import { ShareButton } from '@/components/ShareButton'
 import { TreeCanvas } from '@/components/TreeCanvas'
 import { useStepPlayer } from '@/hooks/useStepPlayer'
-import { randomTreeValues } from '@/algorithms/tree'
+import { useUrlState } from '@/hooks/useUrlState'
+import { randomSeed, seededDistinct } from '@/lib/rng'
 import type { TreeAlgorithm } from '@/types/tree'
 
 interface TreeVisualizerProps {
   algorithm: TreeAlgorithm
 }
 
+const TREE_SIZE = 9
+
 export function TreeVisualizer({ algorithm }: TreeVisualizerProps) {
-  const [values, setValues] = useState(() => randomTreeValues(9))
-  const [target, setTarget] = useState(() => values[Math.floor(values.length / 2)])
+  const [{ seed, target, speed }, setUrl] = useUrlState({ seed: 1, target: -1, speed: 1 })
 
   const isSearch = algorithm.id === 'bst-search'
+  const values = useMemo(() => seededDistinct(seed, TREE_SIZE), [seed])
+  const effectiveTarget = target >= 0 ? target : values[Math.floor(values.length / 2)]
 
-  const steps = useMemo(() => algorithm.run(values, target), [algorithm, values, target])
-  const player = useStepPlayer(steps.length)
+  const steps = useMemo(() => algorithm.run(values, effectiveTarget), [algorithm, values, effectiveTarget])
+  const player = useStepPlayer(steps.length, speed)
 
   useEffect(() => {
     player.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [algorithm.id, values, target])
+  }, [algorithm.id, values, effectiveTarget])
+
+  useEffect(() => {
+    if (player.speed !== speed) setUrl({ speed: player.speed })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player.speed])
 
   const currentStep = steps[player.index] ?? steps[0]
-
-  const handleNewTree = () => {
-    const next = randomTreeValues(9)
-    setValues(next)
-    setTarget(next[Math.floor(next.length / 2)])
-  }
 
   const candidates = useMemo(() => {
     const present = [...values].sort((a, b) => a - b)
@@ -51,6 +55,9 @@ export function TreeVisualizer({ algorithm }: TreeVisualizerProps) {
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">{algorithm.name}</h1>
           <Badge variant="secondary">Binary search tree</Badge>
+          <div className="ml-auto">
+            <ShareButton />
+          </div>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">{algorithm.description}</p>
         <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
@@ -70,8 +77,8 @@ export function TreeVisualizer({ algorithm }: TreeVisualizerProps) {
           <label className="flex items-center gap-2">
             <span className="text-muted-foreground">Target</span>
             <select
-              value={target}
-              onChange={(e) => setTarget(Number(e.target.value))}
+              value={effectiveTarget}
+              onChange={(e) => setUrl({ target: Number(e.target.value) })}
               className="rounded-md border bg-background px-2 py-1"
             >
               {candidates.present.map((v) => (
@@ -100,7 +107,7 @@ export function TreeVisualizer({ algorithm }: TreeVisualizerProps) {
         onStepBack={player.stepBackward}
         onStepForward={player.stepForward}
         onReset={player.reset}
-        onShuffle={handleNewTree}
+        onShuffle={() => setUrl({ seed: randomSeed(), target: -1 })}
         shuffleTitle="New random tree"
         index={player.index}
         stepCount={steps.length}

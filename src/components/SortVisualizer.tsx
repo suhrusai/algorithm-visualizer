@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { PlaybackControls } from '@/components/PlaybackControls'
 import { PseudocodePanel } from '@/components/PseudocodePanel'
+import { ShareButton } from '@/components/ShareButton'
 import { SortBars } from '@/components/SortBars'
 import { Slider } from '@/components/ui/slider'
 import { useStepPlayer } from '@/hooks/useStepPlayer'
-import { randomArray } from '@/lib/randomArray'
+import { useUrlState } from '@/hooks/useUrlState'
+import { randomSeed, seededArray } from '@/lib/rng'
 import type { SortAlgorithm } from '@/types/sorting'
 
 interface SortVisualizerProps {
@@ -13,29 +15,31 @@ interface SortVisualizerProps {
 }
 
 const DEFAULT_SIZE = 20
+const DEFAULT_SEED = 1
 
 export function SortVisualizer({ algorithm }: SortVisualizerProps) {
-  const [size, setSize] = useState(DEFAULT_SIZE)
-  const [initialArray, setInitialArray] = useState(() => randomArray(DEFAULT_SIZE))
+  const [{ seed, size, speed }, setUrl] = useUrlState({
+    seed: DEFAULT_SEED,
+    size: DEFAULT_SIZE,
+    speed: 1,
+  })
+
+  const initialArray = useMemo(() => seededArray(seed, size), [seed, size])
 
   const steps = useMemo(() => algorithm.run(initialArray), [algorithm, initialArray])
-  const player = useStepPlayer(steps.length)
+  const player = useStepPlayer(steps.length, speed)
 
   useEffect(() => {
     player.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algorithm.id, initialArray])
 
+  useEffect(() => {
+    if (player.speed !== speed) setUrl({ speed: player.speed })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player.speed])
+
   const currentStep = steps[player.index] ?? steps[0]
-
-  const handleShuffle = () => {
-    setInitialArray(randomArray(size))
-  }
-
-  const handleSizeChange = (value: number) => {
-    setSize(value)
-    setInitialArray(randomArray(value))
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,6 +49,9 @@ export function SortVisualizer({ algorithm }: SortVisualizerProps) {
           <Badge variant={algorithm.stable ? 'default' : 'secondary'}>
             {algorithm.stable ? 'Stable' : 'Not stable'}
           </Badge>
+          <div className="ml-auto">
+            <ShareButton />
+          </div>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">{algorithm.description}</p>
         <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
@@ -73,7 +80,7 @@ export function SortVisualizer({ algorithm }: SortVisualizerProps) {
         onStepBack={player.stepBackward}
         onStepForward={player.stepForward}
         onReset={player.reset}
-        onShuffle={handleShuffle}
+        onShuffle={() => setUrl({ seed: randomSeed() })}
         index={player.index}
         stepCount={steps.length}
         onSeek={player.seek}
@@ -83,7 +90,13 @@ export function SortVisualizer({ algorithm }: SortVisualizerProps) {
 
       <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
         <span className="w-24 shrink-0 text-xs text-muted-foreground">Array size</span>
-        <Slider value={[size]} min={5} max={60} step={1} onValueChange={([v]) => handleSizeChange(v)} />
+        <Slider
+          value={[size]}
+          min={5}
+          max={200}
+          step={1}
+          onValueChange={([v]) => setUrl({ size: v, seed: randomSeed() })}
+        />
         <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{size}</span>
       </div>
 

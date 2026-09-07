@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { PlaybackControls } from '@/components/PlaybackControls'
 import { PseudocodePanel } from '@/components/PseudocodePanel'
 import { SearchCells } from '@/components/SearchCells'
+import { ShareButton } from '@/components/ShareButton'
 import { useStepPlayer } from '@/hooks/useStepPlayer'
-import { randomArray } from '@/lib/randomArray'
+import { useUrlState } from '@/hooks/useUrlState'
+import { randomSeed, seededArray, mulberry32 } from '@/lib/rng'
 import type { SearchAlgorithm } from '@/types/searching'
 
 interface SearchVisualizerProps {
@@ -13,40 +15,49 @@ interface SearchVisualizerProps {
 
 const DEFAULT_SIZE = 15
 
-function makeArray(size: number, sorted: boolean): number[] {
-  const arr = randomArray(size, 1, 99)
+function makeArray(seed: number, size: number, sorted: boolean): number[] {
+  const arr = seededArray(seed, size, 1, 99)
   return sorted ? [...arr].sort((a, b) => a - b) : arr
 }
 
-function pickTarget(arr: number[]): number {
-  // 70% of the time pick a value that is present, otherwise a likely-absent one
-  if (Math.random() < 0.7 && arr.length > 0) {
-    return arr[Math.floor(Math.random() * arr.length)]
+function defaultTarget(seed: number, arr: number[]): number {
+  const rand = mulberry32(seed ^ 0x9e3779b9)
+  if (rand() < 0.7 && arr.length > 0) {
+    return arr[Math.floor(rand() * arr.length)]
   }
-  return Math.floor(Math.random() * 99) + 1
+  return Math.floor(rand() * 99) + 1
 }
 
 export function SearchVisualizer({ algorithm }: SearchVisualizerProps) {
-  const [array, setArray] = useState(() => makeArray(DEFAULT_SIZE, algorithm.requiresSorted))
-  const [target, setTarget] = useState(() => pickTarget(array))
+  const [{ seed, size, target, speed }, setUrl] = useUrlState({
+    seed: 1,
+    size: DEFAULT_SIZE,
+    target: -1,
+    speed: 1,
+  })
 
-  const steps = useMemo(() => algorithm.run(array, target), [algorithm, array, target])
-  const player = useStepPlayer(steps.length)
+  const array = useMemo(
+    () => makeArray(seed, size, algorithm.requiresSorted),
+    [seed, size, algorithm.requiresSorted],
+  )
+  const effectiveTarget = target >= 0 ? target : defaultTarget(seed, array)
+
+  const steps = useMemo(() => algorithm.run(array, effectiveTarget), [algorithm, array, effectiveTarget])
+  const player = useStepPlayer(steps.length, speed)
 
   useEffect(() => {
     player.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [algorithm.id, array, target])
+  }, [algorithm.id, array, effectiveTarget])
+
+  useEffect(() => {
+    if (player.speed !== speed) setUrl({ speed: player.speed })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player.speed])
 
   const currentStep = steps[player.index] ?? steps[0]
   const lastStep = steps[steps.length - 1]
   const outcome = lastStep.found !== undefined ? `Found at index ${lastStep.found}` : 'Not found'
-
-  const handleNewArray = () => {
-    const next = makeArray(array.length, algorithm.requiresSorted)
-    setArray(next)
-    setTarget(pickTarget(next))
-  }
 
   const candidates = useMemo(() => {
     const present = Array.from(new Set(array)).sort((a, b) => a - b)
@@ -65,6 +76,9 @@ export function SearchVisualizer({ algorithm }: SearchVisualizerProps) {
           <Badge variant={algorithm.requiresSorted ? 'secondary' : 'default'}>
             {algorithm.requiresSorted ? 'Needs sorted input' : 'Works on any array'}
           </Badge>
+          <div className="ml-auto">
+            <ShareButton />
+          </div>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">{algorithm.description}</p>
         <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
@@ -79,8 +93,8 @@ export function SearchVisualizer({ algorithm }: SearchVisualizerProps) {
         <label className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Target</span>
           <select
-            value={target}
-            onChange={(e) => setTarget(Number(e.target.value))}
+            value={effectiveTarget}
+            onChange={(e) => setUrl({ target: Number(e.target.value) })}
             className="rounded-md border bg-background px-2 py-1 text-sm"
           >
             <optgroup label="In the array">
@@ -110,7 +124,7 @@ export function SearchVisualizer({ algorithm }: SearchVisualizerProps) {
         onStepBack={player.stepBackward}
         onStepForward={player.stepForward}
         onReset={player.reset}
-        onShuffle={handleNewArray}
+        onShuffle={() => setUrl({ seed: randomSeed(), target: -1 })}
         index={player.index}
         stepCount={steps.length}
         onSeek={player.seek}

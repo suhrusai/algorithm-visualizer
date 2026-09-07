@@ -9,6 +9,9 @@ import { GraphIndex } from '@/pages/GraphIndex'
 import { GraphAlgorithmPage } from '@/pages/GraphAlgorithmPage'
 import { TreesIndex } from '@/pages/TreesIndex'
 import { TreesAlgorithmPage } from '@/pages/TreesAlgorithmPage'
+import { PathfindingIndex } from '@/pages/PathfindingIndex'
+import { PathfindingAlgorithmPage } from '@/pages/PathfindingAlgorithmPage'
+import { RacePage } from '@/pages/RacePage'
 import { NotFound } from '@/pages/NotFound'
 
 function App() {
@@ -24,6 +27,9 @@ function App() {
         <Route path="/graph/:algorithmId" element={<GraphAlgorithmPage />} />
         <Route path="/trees" element={<TreesIndex />} />
         <Route path="/trees/:algorithmId" element={<TreesAlgorithmPage />} />
+        <Route path="/pathfinding" element={<PathfindingIndex />} />
+        <Route path="/pathfinding/:algorithmId" element={<PathfindingAlgorithmPage />} />
+        <Route path="/race" element={<RacePage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

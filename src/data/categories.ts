@@ -53,14 +53,17 @@ export const categories: AlgorithmCategory[] = [
   {
     id: 'trees',
     name: 'Trees',
-    description: 'Binary search tree insertion, lookup, and traversal.',
+    description: 'Binary search tree operations, insertion, lookup, and traversal.',
     path: '/trees',
     available: true,
-    algorithms: treeAlgorithms.map((a) => ({
-      id: a.id,
-      name: a.name,
-      path: `/trees/${a.id}`,
-    })),
+    algorithms: [
+      { id: 'operations', name: 'BST Operations', path: '/trees/operations' },
+      ...treeAlgorithms.map((a) => ({
+        id: a.id,
+        name: a.name,
+        path: `/trees/${a.id}`,
+      })),
+    ],
   },
   {
     id: 'pathfinding',

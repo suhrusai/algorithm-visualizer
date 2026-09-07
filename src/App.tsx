@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { Layout } from '@/components/Layout'
+import { RouteMeta } from '@/components/RouteMeta'
 import { Home } from '@/pages/Home'
 import { SortingIndex } from '@/pages/SortingIndex'
 import { SortingAlgorithmPage } from '@/pages/SortingAlgorithmPage'
@@ -17,7 +18,9 @@ import { NotFound } from '@/pages/NotFound'
 
 function App() {
   return (
-    <Routes>
+    <>
+      <RouteMeta />
+      <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/sorting" element={<SortingIndex />} />
@@ -34,7 +37,8 @@ function App() {
         <Route path="/race" element={<RacePage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
-    </Routes>
+      </Routes>
+    </>
   )
 }
 

@@ -4,6 +4,7 @@ import { graphAlgorithms } from '@/algorithms/graph'
 import { treeAlgorithms } from '@/algorithms/tree'
 import { pathfindingAlgorithms } from '@/algorithms/pathfinding'
 import { dpAlgorithms } from '@/algorithms/dp'
+import { stringAlgorithms } from '@/algorithms/string'
 
 export const SITE_NAME = 'Algorithm Visualizer'
 export const SITE_URL = 'https://suhrusai.github.io/algorithm-visualizer'
@@ -62,6 +63,11 @@ const STATIC: Record<string, Meta> = {
     description:
       'Watch DP tables fill in cell by cell: longest common subsequence, edit distance, 0/1 knapsack, coin change, and longest increasing subsequence.',
   },
+  '/string': {
+    title: `String matching visualizations: KMP, Boyer–Moore — ${SITE_NAME}`,
+    description:
+      'Watch naive search, Knuth–Morris–Pratt, Boyer–Moore, and Rabin–Karp slide a pattern across a text, with their failure / last-occurrence / hash tables.',
+  },
 }
 
 const DYNAMIC: { prefix: string; label: string; items: { id: string; name: string; description: string }[] }[] = [
@@ -71,6 +77,7 @@ const DYNAMIC: { prefix: string; label: string; items: { id: string; name: strin
   { prefix: '/trees/', label: 'tree', items: treeAlgorithms },
   { prefix: '/pathfinding/', label: 'pathfinding', items: pathfindingAlgorithms },
   { prefix: '/dp/', label: 'dynamic programming', items: dpAlgorithms },
+  { prefix: '/string/', label: 'string matching', items: stringAlgorithms },
 ]
 
 export function metaForPath(pathname: string): Meta {

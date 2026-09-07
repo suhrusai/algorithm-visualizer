@@ -4,6 +4,7 @@ import { graphAlgorithms } from '@/algorithms/graph'
 import { treeAlgorithms } from '@/algorithms/tree'
 import { pathfindingAlgorithms } from '@/algorithms/pathfinding'
 import { dpAlgorithms } from '@/algorithms/dp'
+import { stringAlgorithms } from '@/algorithms/string'
 
 export interface AlgorithmCategory {
   id: string
@@ -91,6 +92,18 @@ export const categories: AlgorithmCategory[] = [
       id: a.id,
       name: a.name,
       path: `/dp/${a.id}`,
+    })),
+  },
+  {
+    id: 'string',
+    name: 'String Matching',
+    description: 'Substring search: naive, Knuth–Morris–Pratt, Boyer–Moore, and Rabin–Karp.',
+    path: '/string',
+    available: true,
+    algorithms: stringAlgorithms.map((a) => ({
+      id: a.id,
+      name: a.name,
+      path: `/string/${a.id}`,
     })),
   },
 ]

@@ -19,6 +19,7 @@ export function GraphVisualizer({ algorithm }: GraphVisualizerProps) {
   const [{ start, goal, speed }, setUrl] = useUrlState({ start: 'A', goal: 'I', speed: 1 })
   const setStart = (v: string) => setUrl({ start: v })
   const setGoal = (v: string) => setUrl({ goal: v })
+  const usesGoal = algorithm.usesGoal !== false
 
   const steps = useMemo(() => algorithm.run(sampleGraph, start, goal), [algorithm, start, goal])
   const player = useStepPlayer(steps.length, speed)
@@ -57,24 +58,33 @@ export function GraphVisualizer({ algorithm }: GraphVisualizerProps) {
 
       <div className="flex flex-wrap items-center gap-4 rounded-lg border bg-card p-3 text-sm">
         <label className="flex items-center gap-2">
-          <span className="text-muted-foreground">Start</span>
+          <span className="text-muted-foreground">{usesGoal ? 'Start' : 'Root'}</span>
           <select value={start} onChange={(e) => setStart(e.target.value)} className="rounded-md border bg-background px-2 py-1">
             {NODE_IDS.map((id) => (
-              <option key={id} value={id} disabled={id === goal}>{id}</option>
+              <option key={id} value={id} disabled={id === goal && usesGoal}>{id}</option>
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2">
-          <span className="text-muted-foreground">Goal</span>
-          <select value={goal} onChange={(e) => setGoal(e.target.value)} className="rounded-md border bg-background px-2 py-1">
-            {NODE_IDS.map((id) => (
-              <option key={id} value={id} disabled={id === start}>{id}</option>
-            ))}
-          </select>
-        </label>
+        {usesGoal && (
+          <label className="flex items-center gap-2">
+            <span className="text-muted-foreground">Goal</span>
+            <select value={goal} onChange={(e) => setGoal(e.target.value)} className="rounded-md border bg-background px-2 py-1">
+              {NODE_IDS.map((id) => (
+                <option key={id} value={id} disabled={id === start}>{id}</option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
 
-      <GraphCanvas graph={sampleGraph} step={currentStep} start={start} goal={goal} showWeights={algorithm.weighted} />
+      <GraphCanvas
+        graph={sampleGraph}
+        step={currentStep}
+        start={start}
+        goal={goal}
+        showWeights={algorithm.weighted}
+        showGoal={usesGoal}
+      />
 
       <p className="min-h-5 text-sm text-muted-foreground">{currentStep.message}</p>
 
@@ -110,6 +120,16 @@ export function GraphVisualizer({ algorithm }: GraphVisualizerProps) {
             </div>
           </div>
         )}
+        {currentStep.mstEdges && (
+          <div className="rounded-lg border bg-card p-3 text-sm">
+            <div className="mb-1 text-xs font-semibold text-muted-foreground">
+              Spanning tree ({currentStep.mstEdges.length} edge{currentStep.mstEdges.length === 1 ? '' : 's'}, weight {mstWeight(currentStep.mstEdges)})
+            </div>
+            <div className="font-mono text-xs">
+              {currentStep.mstEdges.map(([a, b]) => `${a}–${b}`).join('  ') || '—'}
+            </div>
+          </div>
+        )}
       </div>
 
       <div>
@@ -125,6 +145,17 @@ export function GraphVisualizer({ algorithm }: GraphVisualizerProps) {
       </div>
     </div>
   )
+}
+
+function mstWeight(edges: [string, string][]): number {
+  let total = 0
+  for (const [a, b] of edges) {
+    const e = sampleGraph.edges.find(
+      (x) => (x.source === a && x.target === b) || (x.source === b && x.target === a),
+    )
+    if (e) total += e.weight
+  }
+  return total
 }
 
 function LegendSwatch({ className, label }: { className: string; label: string }) {

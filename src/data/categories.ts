@@ -3,6 +3,8 @@ import { searchingAlgorithms } from '@/algorithms/searching'
 import { graphAlgorithms } from '@/algorithms/graph'
 import { treeAlgorithms } from '@/algorithms/tree'
 import { pathfindingAlgorithms } from '@/algorithms/pathfinding'
+import { dpAlgorithms } from '@/algorithms/dp'
+import { stringAlgorithms } from '@/algorithms/string'
 
 export interface AlgorithmCategory {
   id: string
@@ -71,10 +73,37 @@ export const categories: AlgorithmCategory[] = [
     description: 'Grid search: BFS, Dijkstra, A*, and Greedy Best-First over walls and weighted tiles.',
     path: '/pathfinding',
     available: true,
-    algorithms: pathfindingAlgorithms.map((a) => ({
+    algorithms: [
+      ...pathfindingAlgorithms.map((a) => ({
+        id: a.id,
+        name: a.name,
+        path: `/pathfinding/${a.id}`,
+      })),
+      { id: 'race', name: 'Race Mode', path: '/pathfinding/race' },
+    ],
+  },
+  {
+    id: 'dp',
+    name: 'Dynamic Programming',
+    description: 'Table-filling classics: LCS, edit distance, knapsack, coin change, and LIS.',
+    path: '/dp',
+    available: true,
+    algorithms: dpAlgorithms.map((a) => ({
       id: a.id,
       name: a.name,
-      path: `/pathfinding/${a.id}`,
+      path: `/dp/${a.id}`,
+    })),
+  },
+  {
+    id: 'string',
+    name: 'String Matching',
+    description: 'Substring search: naive, Knuth–Morris–Pratt, Boyer–Moore, and Rabin–Karp.',
+    path: '/string',
+    available: true,
+    algorithms: stringAlgorithms.map((a) => ({
+      id: a.id,
+      name: a.name,
+      path: `/string/${a.id}`,
     })),
   },
 ]

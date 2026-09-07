@@ -1,8 +1,13 @@
 # Algorithm Visualizer
 
+[![CI](https://github.com/suhrusai/algorithm-visualizer/actions/workflows/ci.yml/badge.svg)](https://github.com/suhrusai/algorithm-visualizer/actions/workflows/ci.yml)
+[![Deploy](https://github.com/suhrusai/algorithm-visualizer/actions/workflows/deploy.yml/badge.svg)](https://suhrusai.github.io/algorithm-visualizer/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Watch classic algorithms run one step at a time, side by side with their
-pseudocode — sorting, searching, graphs, binary search trees, and grid
-pathfinding, all in one small, fast, keyboard-friendly site.
+pseudocode — sorting, searching, graphs, binary search trees, grid
+pathfinding, dynamic programming, and string matching, all in one small,
+fast, keyboard-friendly site.
 
 <p align="center">
   <a href="https://suhrusai.github.io/algorithm-visualizer/">
@@ -39,10 +44,12 @@ pathfinding, all in one small, fast, keyboard-friendly site.
 | --- | --- |
 | **Sorting** | Bubble · Selection · Insertion · Merge · Quick · Heap |
 | **Searching** | Linear · Binary · Jump · Interpolation |
-| **Graph** | BFS · DFS · Dijkstra |
+| **Graph** | BFS · DFS · Dijkstra · A\* · Bellman–Ford · Prim's MST · Kruskal's MST |
 | **Trees** | BST insert / search / delete / rebalance · in-, pre-, post-, level-order traversal |
 | **Pathfinding** | BFS · Dijkstra · A\* · Greedy Best-First (grid, walls, weights, mazes) |
-| **Race mode** | Any 2–4 sorting algorithms head to head |
+| **Dynamic programming** | LCS · Edit distance · 0/1 knapsack · Coin change · LIS |
+| **String matching** | Naive · Knuth–Morris–Pratt · Boyer–Moore · Rabin–Karp |
+| **Race modes** | 2–4 sorting algorithms, or the four pathfinders on one maze |
 
 <table>
   <tr>
@@ -59,7 +66,7 @@ pathfinding, all in one small, fast, keyboard-friendly site.
 
 - **React 19** + **TypeScript**, routed with **React Router 7**
 - **Vite 8** build, **Tailwind CSS 4**, **shadcn/ui** + **Radix** primitives
-- **oxlint** for linting
+- **oxlint** for linting, **Vitest** for the algorithm test suite
 - Deployed to **GitHub Pages** via GitHub Actions
 
 ## Architecture
@@ -111,7 +118,7 @@ entry, and page `<title>` are all generic and wire up on their own.
 ## Roadmap
 
 - [ ] Turbo mode: un-recorded live sorting for very large arrays
-- [ ] More graph algorithms (A\* on graphs, Bellman–Ford, topological sort, MST)
+- [ ] Topological sort and strongly-connected components on a directed sample
 - [ ] Self-balancing trees (AVL, red–black) with rotation animations
 - [ ] Plain-English explanations per step
 - [ ] Recorded GIF export of a run
@@ -121,7 +128,7 @@ entry, and page `<title>` are all generic and wire up on their own.
 Issues and pull requests are welcome. For a change of any size:
 
 1. Fork and branch from `main`.
-2. `npm run lint` and `npm run build` must pass.
+2. `npm run lint`, `npm run test`, and `npm run build` must pass (CI runs all three).
 3. Keep algorithm functions pure and deterministic (seeded RNG only).
 4. For a new visualization, include a screenshot in the PR.
 

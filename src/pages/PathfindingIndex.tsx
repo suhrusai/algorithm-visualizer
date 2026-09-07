@@ -15,6 +15,28 @@ export function PathfindingIndex() {
         </p>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Race Mode
+            <Badge variant="outline" className="text-xs">4-up</Badge>
+          </CardTitle>
+          <CardDescription>
+            Run BFS, Dijkstra, A*, and Greedy Best-First on the same maze at once and compare the
+            paths they find and how much of the grid each explores.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            to="/pathfinding/race"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            Start a race
+            <ArrowRight className="size-4" />
+          </Link>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 sm:grid-cols-2">
         {pathfindingAlgorithms.map((algo) => (
           <Card key={algo.id}>

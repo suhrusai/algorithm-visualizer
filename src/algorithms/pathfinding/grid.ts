@@ -60,13 +60,19 @@ export function generateMaze(rows: number, cols: number, seed: number): Grid {
     }
   }
   carve(1, 1)
+  // The backtracker visits every odd cell, so start/goal on odd coordinates
+  // are always carved and mutually reachable.
+  const lastOdd = (n: number) => (n % 2 === 0 ? n - 1 : n)
   const start = idx(cols, 1, 1)
-  let goal = idx(cols, rows - 2, cols - 2)
-  if (terrain[goal] === 1) {
-    terrain[goal] = 0
-    goal = idx(cols, rows - 2, cols - 2)
-  }
+  const goal = idx(cols, lastOdd(rows - 2), lastOdd(cols - 2))
   return { rows, cols, terrain, start, goal }
+}
+
+/** The maze shown on first load — deterministic so everyone sees the same one. */
+export const DEFAULT_MAZE_SEED = 20260907
+
+export function defaultGrid(): Grid {
+  return generateMaze(DEFAULT_ROWS, DEFAULT_COLS, DEFAULT_MAZE_SEED)
 }
 
 /** Serialize terrain to a compact base36 run-length string for shareable URLs. */

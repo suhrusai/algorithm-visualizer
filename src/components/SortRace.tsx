@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider'
 import { useStepPlayer } from '@/hooks/useStepPlayer'
 import { useUrlState } from '@/hooks/useUrlState'
 import { randomSeed, seededArray } from '@/lib/rng'
+import { parseCustomArray } from '@/lib/parseArray'
 import { sortingAlgorithms } from '@/algorithms/sorting'
 import { cn } from '@/lib/utils'
 import type { SortStep } from '@/types/sorting'
@@ -31,15 +32,21 @@ function countUpTo(steps: SortStep[], upTo: number) {
 }
 
 export function SortRace() {
-  const [{ seed, size, picks, speed }, setUrl] = useUrlState({
+  const [{ seed, size, picks, speed, custom }, setUrl] = useUrlState({
     seed: 7,
     size: 18,
     picks: DEFAULT_PICKS.join(','),
     speed: 1,
+    custom: '',
   })
 
   const selected = useMemo(() => picks.split(',').filter(Boolean), [picks])
-  const initialArray = useMemo(() => seededArray(seed, size), [seed, size])
+  const customArray = useMemo(() => (custom ? parseCustomArray(custom) : null), [custom])
+  const usingCustom = !!customArray && customArray.length >= 2
+  const initialArray = useMemo(
+    () => (usingCustom ? customArray! : seededArray(seed, size)),
+    [usingCustom, customArray, seed, size],
+  )
 
   const lanes = useMemo<Lane[]>(() => {
     return sortingAlgorithms
@@ -115,7 +122,7 @@ export function SortRace() {
         onStepBack={player.stepBackward}
         onStepForward={player.stepForward}
         onReset={player.reset}
-        onShuffle={() => setUrl({ seed: randomSeed() })}
+        onShuffle={() => setUrl({ seed: randomSeed(), custom: '' })}
         index={player.index}
         stepCount={maxSteps}
         onSeek={player.seek}
@@ -123,16 +130,41 @@ export function SortRace() {
         onSpeedChange={player.setSpeed}
       />
 
-      <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-        <span className="w-24 shrink-0 text-xs text-muted-foreground">Array size</span>
-        <Slider
-          value={[size]}
-          min={6}
-          max={40}
-          step={1}
-          onValueChange={([v]) => setUrl({ size: v, seed: randomSeed() })}
-        />
-        <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{size}</span>
+      <div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="w-24 shrink-0 text-xs text-muted-foreground">Custom array</span>
+          <input
+            defaultValue={custom}
+            key={custom}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') setUrl({ custom: (e.target as HTMLInputElement).value.trim() })
+            }}
+            placeholder="e.g. 5, 2, 9, 1, 7  —  Enter to apply to every lane"
+            className="min-w-56 flex-1 rounded-md border bg-background px-2 py-1 font-mono text-sm text-foreground"
+          />
+          {usingCustom && (
+            <button
+              onClick={() => setUrl({ custom: '', seed: randomSeed() })}
+              className="text-xs text-primary hover:underline"
+            >
+              use random
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="w-24 shrink-0 text-xs text-muted-foreground">Array size</span>
+          <Slider
+            value={[usingCustom ? customArray!.length : size]}
+            min={6}
+            max={40}
+            step={1}
+            disabled={usingCustom}
+            onValueChange={([v]) => setUrl({ size: v, seed: randomSeed(), custom: '' })}
+          />
+          <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+            {usingCustom ? customArray!.length : size}
+          </span>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

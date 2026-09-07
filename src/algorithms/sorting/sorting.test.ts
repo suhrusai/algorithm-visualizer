@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { sortingAlgorithms } from './index'
 import { seededArray } from '@/lib/rng'
+import { parseCustomArray } from '@/lib/parseArray'
+
+describe('parseCustomArray', () => {
+  it('splits on commas and whitespace, clamps, and caps length', () => {
+    expect(parseCustomArray('5, 2 9,1  7')).toEqual([5, 2, 9, 1, 7])
+    expect(parseCustomArray('-3, 4.7, 1200, abc')).toEqual([0, 5, 999])
+    expect(parseCustomArray(Array.from({ length: 80 }, (_, i) => i).join(','))).toHaveLength(60)
+  })
+})
 
 describe('sorting algorithms', () => {
   for (const algo of sortingAlgorithms) {
@@ -44,6 +53,11 @@ describe('sorting algorithms', () => {
         expect(algo.run([]).at(-1)!.array).toEqual([])
         expect(algo.run([7]).at(-1)!.array).toEqual([7])
         expect(algo.run([2, 1]).at(-1)!.array).toEqual([1, 2])
+      })
+
+      it('sorts a custom array with duplicates and zeros', () => {
+        const input = parseCustomArray('9, 0, 4, 4, 1, 0, 7, 3, 3')
+        expect(algo.run(input).at(-1)!.array).toEqual([...input].sort((a, b) => a - b))
       })
     })
   }

@@ -1,10 +1,9 @@
 name: CI
 
-# Runs on every branch push and every pull request. Once this file is on
-# `main`, all future branches and PRs are covered automatically.
+# Runs on every branch push. Same-repo PRs are covered because the branch
+# push triggers this; there is no separate pull_request run.
 on:
   push:
-  pull_request:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

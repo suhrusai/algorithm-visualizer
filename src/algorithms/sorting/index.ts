@@ -5,6 +5,8 @@ import { shellSort } from './shellSort'
 import { cocktailSort } from './cocktailSort'
 import { combSort } from './combSort'
 import { gnomeSort } from './gnomeSort'
+import { pancakeSort } from './pancakeSort'
+import { oddEvenSort } from './oddEvenSort'
 import { mergeSort } from './mergeSort'
 import { quickSort } from './quickSort'
 import { heapSort } from './heapSort'
@@ -20,6 +22,8 @@ export const sortingAlgorithms: SortAlgorithm[] = [
   cocktailSort,
   combSort,
   gnomeSort,
+  pancakeSort,
+  oddEvenSort,
   mergeSort,
   quickSort,
   heapSort,

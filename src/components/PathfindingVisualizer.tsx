@@ -14,6 +14,7 @@ import {
   DEFAULT_COLS,
   DEFAULT_ROWS,
   decodeTerrain,
+  defaultGrid,
   encodeTerrain,
   generateMaze,
 } from '@/algorithms/pathfinding'
@@ -26,19 +27,19 @@ interface Props {
 const ROWS = DEFAULT_ROWS
 const COLS = DEFAULT_COLS
 const CELLS = ROWS * COLS
-const START = Math.floor(ROWS / 2) * COLS + 2
-const GOAL = Math.floor(ROWS / 2) * COLS + (COLS - 3)
+// First load shows a ready-made maze rather than a blank grid.
+const DEFAULT = defaultGrid()
 
 export function PathfindingVisualizer({ algorithm }: Props) {
   const [{ terrain: terrainParam, start, goal, speed }, setUrl] = useUrlState({
     terrain: '',
-    start: START,
-    goal: GOAL,
+    start: DEFAULT.start,
+    goal: DEFAULT.goal,
     speed: 1,
   })
 
   const [terrain, setTerrain] = useState<Terrain[]>(() =>
-    terrainParam ? decodeTerrain(terrainParam, CELLS) : Array<Terrain>(CELLS).fill(0),
+    terrainParam ? decodeTerrain(terrainParam, CELLS) : DEFAULT.terrain,
   )
 
   // Re-hydrate terrain when the URL param changes from outside (e.g. opening a shared link).

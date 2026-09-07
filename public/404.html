@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Algorithm Visualizer</title>
+    <script>
+      // spa-github-pages redirect: turn /algorithm-visualizer/sorting/quick-sort
+      // into /algorithm-visualizer/?/sorting/quick-sort so index.html can restore it.
+      (function () {
+        var segmentCount = 1 // repo is served from /algorithm-visualizer/
+        var l = window.location
+        var path = l.pathname
+          .split('/')
+          .slice(0, 1 + segmentCount)
+          .join('/')
+        var rest = l.pathname.slice(path.length).replace(/^\//, '')
+        l.replace(
+          l.protocol +
+            '//' +
+            l.host +
+            path +
+            '/?/' +
+            rest.replace(/&/g, '~and~') +
+            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash,
+        )
+      })()
+    </script>
+  </head>
+  <body></body>
+</html>

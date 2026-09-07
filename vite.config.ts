@@ -5,7 +5,7 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/algo-vizualizer/',
+  base: '/algorithm-visualizer/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

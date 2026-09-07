@@ -5,7 +5,7 @@ live visualization, synced line-by-line with their pseudocode.
 
 Built with React, TypeScript, Vite, Tailwind CSS, and shadcn/ui.
 
-**Live site:** https://suhrusai.github.io/algo-vizualizer/
+**Live site:** https://suhrusai.github.io/algorithm-visualizer/
 
 ## What's here
 

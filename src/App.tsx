@@ -16,6 +16,8 @@ import { PathfindingAlgorithmPage } from '@/pages/PathfindingAlgorithmPage'
 import { PathfindingRacePage } from '@/pages/PathfindingRacePage'
 import { DpIndex } from '@/pages/DpIndex'
 import { DpAlgorithmPage } from '@/pages/DpAlgorithmPage'
+import { StringIndex } from '@/pages/StringIndex'
+import { StringAlgorithmPage } from '@/pages/StringAlgorithmPage'
 import { RacePage } from '@/pages/RacePage'
 import { NotFound } from '@/pages/NotFound'
 
@@ -40,6 +42,8 @@ function App() {
         <Route path="/pathfinding/:algorithmId" element={<PathfindingAlgorithmPage />} />
         <Route path="/dp" element={<DpIndex />} />
         <Route path="/dp/:algorithmId" element={<DpAlgorithmPage />} />
+        <Route path="/string" element={<StringIndex />} />
+        <Route path="/string/:algorithmId" element={<StringAlgorithmPage />} />
         <Route path="/race" element={<RacePage />} />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -7,20 +7,22 @@ interface GraphCanvasProps {
   start: string
   goal: string
   showWeights: boolean
+  showGoal?: boolean
 }
 
 function edgeKey(a: string, b: string) {
   return [a, b].sort().join('-')
 }
 
-export function GraphCanvas({ graph, step, start, goal, showWeights }: GraphCanvasProps) {
-  const { visited = [], frontier = [], current, activeEdge, path = [] } = step
+export function GraphCanvas({ graph, step, start, goal, showWeights, showGoal = true }: GraphCanvasProps) {
+  const { visited = [], frontier = [], current, activeEdge, path = [], mstEdges = [] } = step
   const pos = Object.fromEntries(graph.nodes.map((n) => [n.id, n]))
 
   const pathEdges = new Set<string>()
   for (let i = 0; i < path.length - 1; i++) {
     pathEdges.add(edgeKey(path[i], path[i + 1]))
   }
+  const treeEdges = new Set<string>(mstEdges.map(([a, b]) => edgeKey(a, b)))
   const activeKey = activeEdge ? edgeKey(activeEdge[0], activeEdge[1]) : null
 
   return (
@@ -30,7 +32,7 @@ export function GraphCanvas({ graph, step, start, goal, showWeights }: GraphCanv
           const a = pos[edge.source]
           const b = pos[edge.target]
           const key = edgeKey(edge.source, edge.target)
-          const onPath = pathEdges.has(key)
+          const onPath = pathEdges.has(key) || treeEdges.has(key)
           const isActive = activeKey === key
           return (
             <g key={key}>
@@ -94,7 +96,7 @@ export function GraphCanvas({ graph, step, start, goal, showWeights }: GraphCanv
               >
                 {node.id}
               </text>
-              {(node.id === start || node.id === goal) && (
+              {(node.id === start || (showGoal && node.id === goal)) && (
                 <text
                   x={node.x}
                   y={node.y - 6}

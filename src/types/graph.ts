@@ -30,6 +30,8 @@ export interface GraphStep {
   distances?: Record<string, number>
   /** node ids on the highlighted path */
   path?: string[]
+  /** edges accepted into a spanning tree, as [a, b] pairs */
+  mstEdges?: [string, string][]
   /** pseudocode line number (0-indexed) to highlight */
   line: number
   message: string
@@ -49,6 +51,8 @@ export interface GraphAlgorithm {
   weighted: boolean
   /** label for the frontier data structure, e.g. "Queue" */
   frontierLabel: string
+  /** whether the algorithm searches toward a goal node (false for MST / full-graph) */
+  usesGoal?: boolean
   pseudocode: string[]
   run: (graph: Graph, start: string, goal: string) => GraphStep[]
 }
